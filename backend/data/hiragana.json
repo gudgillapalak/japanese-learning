@@ -1,0 +1,58 @@
+[
+  { "id": "a", "char": "あ", "romaji": "a", "row": "vowels", "audio": "a.mp3" },
+  { "id": "i", "char": "い", "romaji": "i", "row": "vowels", "audio": "i.mp3" },
+  { "id": "u", "char": "う", "romaji": "u", "row": "vowels", "audio": "u.mp3" },
+  { "id": "e", "char": "え", "romaji": "e", "row": "vowels", "audio": "e.mp3" },
+  { "id": "o", "char": "お", "romaji": "o", "row": "vowels", "audio": "o.mp3" },
+
+  { "id": "ka", "char": "か", "romaji": "ka", "row": "ka", "audio": "ka.mp3" },
+  { "id": "ki", "char": "き", "romaji": "ki", "row": "ka", "audio": "ki.mp3" },
+  { "id": "ku", "char": "く", "romaji": "ku", "row": "ka", "audio": "ku.mp3" },
+  { "id": "ke", "char": "け", "romaji": "ke", "row": "ka", "audio": "ke.mp3" },
+  { "id": "ko", "char": "こ", "romaji": "ko", "row": "ka", "audio": "ko.mp3" },
+
+  { "id": "sa", "char": "さ", "romaji": "sa", "row": "sa", "audio": "sa.mp3" },
+  { "id": "shi", "char": "し", "romaji": "shi", "row": "sa", "audio": "shi.mp3" },
+  { "id": "su", "char": "す", "romaji": "su", "row": "sa", "audio": "su.mp3" },
+  { "id": "se", "char": "せ", "romaji": "se", "row": "sa", "audio": "se.mp3" },
+  { "id": "so", "char": "そ", "romaji": "so", "row": "sa", "audio": "so.mp3" },
+
+  { "id": "ta", "char": "た", "romaji": "ta", "row": "ta", "audio": "ta.mp3" },
+  { "id": "chi", "char": "ち", "romaji": "chi", "row": "ta", "audio": "chi.mp3" },
+  { "id": "tsu", "char": "つ", "romaji": "tsu", "row": "ta", "audio": "tsu.mp3" },
+  { "id": "te", "char": "て", "romaji": "te", "row": "ta", "audio": "te.mp3" },
+  { "id": "to", "char": "と", "romaji": "to", "row": "ta", "audio": "to.mp3" },
+
+  { "id": "na", "char": "な", "romaji": "na", "row": "na", "audio": "na.mp3" },
+  { "id": "ni", "char": "に", "romaji": "ni", "row": "na", "audio": "ni.mp3" },
+  { "id": "nu", "char": "ぬ", "romaji": "nu", "row": "na", "audio": "nu.mp3" },
+  { "id": "ne", "char": "ね", "romaji": "ne", "row": "na", "audio": "ne.mp3" },
+  { "id": "no", "char": "の", "romaji": "no", "row": "na", "audio": "no.mp3" },
+
+  { "id": "ha", "char": "は", "romaji": "ha", "row": "ha", "audio": "ha.mp3" },
+  { "id": "hi", "char": "ひ", "romaji": "hi", "row": "ha", "audio": "hi.mp3" },
+  { "id": "fu", "char": "ふ", "romaji": "fu", "row": "ha", "audio": "fu.mp3" },
+  { "id": "he", "char": "へ", "romaji": "he", "row": "ha", "audio": "he.mp3" },
+  { "id": "ho", "char": "ほ", "romaji": "ho", "row": "ha", "audio": "ho.mp3" },
+
+  { "id": "ma", "char": "ま", "romaji": "ma", "row": "ma", "audio": "ma.mp3" },
+  { "id": "mi", "char": "み", "romaji": "mi", "row": "ma", "audio": "mi.mp3" },
+  { "id": "mu", "char": "む", "romaji": "mu", "row": "ma", "audio": "mu.mp3" },
+  { "id": "me", "char": "め", "romaji": "me", "row": "ma", "audio": "me.mp3" },
+  { "id": "mo", "char": "も", "romaji": "mo", "row": "ma", "audio": "mo.mp3" },
+
+  { "id": "ya", "char": "や", "romaji": "ya", "row": "ya", "audio": "ya.mp3" },
+  { "id": "yu", "char": "ゆ", "romaji": "yu", "row": "ya", "audio": "yu.mp3" },
+  { "id": "yo", "char": "よ", "romaji": "yo", "row": "ya", "audio": "yo.mp3" },
+
+  { "id": "ra", "char": "ら", "romaji": "ra", "row": "ra", "audio": "ra.mp3" },
+  { "id": "ri", "char": "り", "romaji": "ri", "row": "ra", "audio": "ri.mp3" },
+  { "id": "ru", "char": "る", "romaji": "ru", "row": "ra", "audio": "ru.mp3" },
+  { "id": "re", "char": "れ", "romaji": "re", "row": "ra", "audio": "re.mp3" },
+  { "id": "ro", "char": "ろ", "romaji": "ro", "row": "ra", "audio": "ro.mp3" },
+
+  { "id": "wa", "char": "わ", "romaji": "wa", "row": "wa", "audio": "wa.mp3" },
+  { "id": "wo", "char": "を", "romaji": "wo", "row": "wa", "audio": "wo.mp3" },
+
+  { "id": "n", "char": "ん", "romaji": "n", "row": "special", "audio": "n.mp3" }
+]
