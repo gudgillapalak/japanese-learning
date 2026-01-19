@@ -1,23 +1,37 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+
+  const [data, setData] = useState(null);
 
   const welcomeRef = useRef(null);
   const statsRef = useRef([]);
   const actionsRef = useRef([]);
   const badgeRef = useRef(null);
 
+  /* ================= AUTH GUARD ================= */
   useEffect(() => {
-    if (!user) navigate("/login");
-  }, [navigate, user]);
+    if (!storedUser) navigate("/login");
+  }, [navigate, storedUser]);
 
-  /* ================= SUBTLE ANIMATION ================= */
-
+  /* ================= FETCH DASHBOARD DATA ================= */
   useEffect(() => {
+    if (!storedUser) return;
+
+    fetch(`http://localhost:5000/api/users/${storedUser.id}/dashboard`)
+      .then((res) => res.json())
+      .then((json) => setData(json))
+      .catch(() => navigate("/login"));
+  }, [storedUser, navigate]);
+
+  /* ================= ANIMATION ================= */
+  useEffect(() => {
+    if (!data) return;
+
     gsap.set(
       [
         welcomeRef.current,
@@ -30,61 +44,39 @@ export default function Dashboard() {
 
     gsap
       .timeline({ delay: 0.2 })
-      .to(welcomeRef.current, {
+      .to(welcomeRef.current, { opacity: 1, y: 0, duration: 0.5 })
+      .to(statsRef.current, {
         opacity: 1,
         y: 0,
-        duration: 0.5,
-        ease: "power2.out",
+        stagger: 0.08,
+        duration: 0.4,
       })
-      .to(
-        statsRef.current,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.4,
-          stagger: 0.08,
-          ease: "power2.out",
-        },
-        "-=0.3"
-      )
-      .to(
-        actionsRef.current,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.4,
-          stagger: 0.1,
-          ease: "power2.out",
-        },
-        "-=0.2"
-      )
-      .to(
-        badgeRef.current,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.4,
-          ease: "power2.out",
-        },
-        "-=0.2"
-      );
-  }, []);
+      .to(actionsRef.current, {
+        opacity: 1,
+        y: 0,
+        stagger: 0.1,
+        duration: 0.4,
+      })
+      .to(badgeRef.current, { opacity: 1, y: 0, duration: 0.4 });
+  }, [data]);
+
+  if (!data) return null;
 
   return (
     <div style={page}>
       {/* WELCOME */}
       <div ref={welcomeRef} style={welcomeCard}>
         <h2>Welcome back 🌸</h2>
-        <p>{user?.email}</p>
+        <p>{data.username}</p>
       </div>
 
       {/* STATS */}
       <div style={statsGrid}>
         {[
-          { title: "Study Time", value: "2.4 hrs" },
-          { title: "Accuracy", value: "78%" },
-          { title: "Streak", value: "3 days" },
-          { title: "Rank", value: "#40176" },
+          { title: "Study Time", value: `${Math.floor(data.study_time_minutes / 60)} hrs` },
+          { title: "Accuracy", value: `${data.accuracy}%` },
+          { title: "Streak", value: `${data.streak} days` },
+          { title: "Rank", value: `#${data.rank}` },
         ].map((item, i) => (
           <div
             key={i}
@@ -178,7 +170,6 @@ const actionCard = {
   color: "#fff",
   fontWeight: 600,
   textAlign: "center",
-  cursor: "pointer",
 };
 
 const badgeCard = {

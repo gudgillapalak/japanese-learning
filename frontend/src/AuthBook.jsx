@@ -8,7 +8,7 @@ export default function AuthBook() {
   const [flipped, setFlipped] = useState(false);
 
   /* ================= REGISTER STATE ================= */
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
 
@@ -44,7 +44,7 @@ export default function AuthBook() {
   /* ================= REGISTER ================= */
 
   const registerUser = async () => {
-    if (!name || !regEmail || !regPassword) {
+    if (!username || !regEmail || !regPassword) {
       setMsg("⚠️ Please fill all fields");
       return;
     }
@@ -57,7 +57,7 @@ export default function AuthBook() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
+          username,
           email: regEmail,
           password: regPassword,
         }),
@@ -107,10 +107,10 @@ export default function AuthBook() {
 
       setMsg("✅ Login successful");
 
-      // save user
+      // save user in localStorage
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // redirect to home
+      // redirect to dashboard
       setTimeout(() => {
         navigate("/dashboard");
       }, 700);
@@ -130,20 +130,22 @@ export default function AuthBook() {
           {/* 🎓 HAT */}
           <img src="/hat.png" className="auth-hat" alt="hat" />
 
-          {/* REGISTER */}
+          {/* ================= REGISTER ================= */}
           <div className="auth-face auth-front">
             <h2>Register</h2>
 
             <input
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
+
             <input
               placeholder="Email"
               value={regEmail}
               onChange={(e) => setRegEmail(e.target.value)}
             />
+
             <input
               type="password"
               placeholder="Password"
@@ -164,7 +166,7 @@ export default function AuthBook() {
             </p>
           </div>
 
-          {/* LOGIN */}
+          {/* ================= LOGIN ================= */}
           <div className="auth-face auth-back">
             <h2>Login</h2>
 
@@ -173,6 +175,7 @@ export default function AuthBook() {
               value={loginEmail}
               onChange={(e) => setLoginEmail(e.target.value)}
             />
+
             <input
               type="password"
               placeholder="Password"

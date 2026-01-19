@@ -1,30 +1,52 @@
 import bcrypt from "bcryptjs";
 import { findUserByEmail, createUser } from "../models/User.js";
 
+/* =========================
+   REGISTER
+========================= */
 export const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
     const exists = await findUserByEmail(email);
     if (exists) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const hash = await bcrypt.hash(password, 10);
-    await createUser(name, email, hash);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    res.json({ message: "Register OK" });
+    const newUser = await createUser(
+      username.trim(),
+      email.trim(),
+      hashedPassword
+    );
+
+    res.status(201).json({
+      message: "Register OK",
+      user: newUser,
+    });
   } catch (err) {
-    console.error(err);
+    console.error("REGISTER ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
+/* =========================
+   LOGIN
+========================= */
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await findUserByEmail(email);
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email & password required" });
+    }
+
+    const user = await findUserByEmail(email.trim());
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
@@ -36,10 +58,14 @@ export const login = async (req, res) => {
 
     res.json({
       message: "Login OK",
-      user: { id: user.id, email: user.email }
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      },
     });
   } catch (err) {
-    console.error(err);
+    console.error("LOGIN ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
