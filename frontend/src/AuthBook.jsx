@@ -109,6 +109,7 @@ export default function AuthBook() {
 
       // save user in localStorage
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token);
 
       // redirect to dashboard
       setTimeout(() => {

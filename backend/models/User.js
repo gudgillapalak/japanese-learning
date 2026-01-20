@@ -17,12 +17,12 @@ export const findUserByEmail = async (email) => {
 /* =========================
    CREATE USER
 ========================= */
-export const createUser = async (username, email, hashedPassword) => {
+export const createUser = async ({ username, email, password }) => {
   const result = await pool.query(
     `INSERT INTO users (username, email, password)
      VALUES ($1, $2, $3)
      RETURNING id, username, email`,
-    [username, email, hashedPassword]
+    [username, email, password]
   );
 
   const user = result.rows[0];
@@ -55,4 +55,28 @@ export const getUserDashboardData = async (userId) => {
   );
 
   return result.rows[0];
+};
+
+/* =========================
+   UPDATE STUDY TIME
+========================= */
+export const addStudyTime = async (userId, minutes) => {
+  await pool.query(
+    `UPDATE user_stats
+     SET study_time_minutes = study_time_minutes + $1
+     WHERE user_id = $2`,
+    [minutes, userId]
+  );
+};
+
+/* =========================
+   UPDATE STREAK
+========================= */
+export const updateStreak = async (userId) => {
+  await pool.query(
+    `UPDATE user_stats
+     SET streak = streak + 1
+     WHERE user_id = $1`,
+    [userId]
+  );
 };

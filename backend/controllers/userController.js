@@ -1,18 +1,61 @@
-import { getUserDashboardData } from "../models/User.js";
+import {
+  getUserDashboardData,
+  addStudyTime,
+  updateStreak,
+} from "../models/User.js";
 
-export const getUserDashboard = async (req, res) => {
+/* =========================
+   GET DASHBOARD
+========================= */
+export const getDashboard = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = req.user.id;
 
     const data = await getUserDashboardData(userId);
 
-    if (!data) {
-      return res.status(404).json({ message: "User not found" });
+    res.json({
+      message: "Dashboard data fetched",
+      data,
+    });
+  } catch (err) {
+    console.error("DASHBOARD ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/* =========================
+   ADD STUDY TIME
+========================= */
+export const addStudyTimeController = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { minutes } = req.body;
+
+    if (!minutes || minutes <= 0) {
+      return res.status(400).json({ message: "Invalid minutes" });
     }
 
-    res.json(data);
+    await addStudyTime(userId, minutes);
+
+    res.json({ message: "Study time updated" });
   } catch (err) {
-    console.error(err);
+    console.error("STUDY TIME ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/* =========================
+   UPDATE STREAK
+========================= */
+export const updateStreakController = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    await updateStreak(userId);
+
+    res.json({ message: "Streak updated" });
+  } catch (err) {
+    console.error("STREAK ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

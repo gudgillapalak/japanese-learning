@@ -5,6 +5,7 @@ import gsap from "gsap";
 export default function Dashboard() {
   const navigate = useNavigate();
   const storedUser = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
 
   const [data, setData] = useState(null);
 
@@ -15,18 +16,58 @@ export default function Dashboard() {
 
   /* ================= AUTH GUARD ================= */
   useEffect(() => {
-    if (!storedUser) navigate("/login");
-  }, [navigate, storedUser]);
+    if (!storedUser || !token) {
+      navigate("/login");
+    }
+  }, [navigate, storedUser, token]);
 
-  /* ================= FETCH DASHBOARD DATA ================= */
+  /* ================= FETCH DASHBOARD ================= */
+  const fetchDashboard = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/users/dashboard", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.status === 401) {
+        localStorage.clear();
+        navigate("/login");
+        return;
+      }
+
+      const json = await res.json();
+      setData(json.data);
+    } catch (err) {
+      console.error(err);
+      navigate("/login");
+    }
+  };
+
   useEffect(() => {
-    if (!storedUser) return;
+    fetchDashboard();
+  }, []);
 
-    fetch(`http://localhost:5000/api/users/${storedUser.id}/dashboard`)
-      .then((res) => res.json())
-      .then((json) => setData(json))
-      .catch(() => navigate("/login"));
-  }, [storedUser, navigate]);
+  /* ================= STATS UPDATE APIs ================= */
+  const addStudyTime = async (minutes) => {
+    await fetch("http://localhost:5000/api/users/stats/study-time", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ minutes }),
+    });
+  };
+
+  const updateStreak = async () => {
+    await fetch("http://localhost:5000/api/users/stats/streak", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  };
 
   /* ================= ANIMATION ================= */
   useEffect(() => {
@@ -73,10 +114,13 @@ export default function Dashboard() {
       {/* STATS */}
       <div style={statsGrid}>
         {[
-          { title: "Study Time", value: `${Math.floor(data.study_time_minutes / 60)} hrs` },
+          {
+            title: "Study Time",
+            value: `${Math.floor(data.study_time_minutes / 60)} hrs`,
+          },
           { title: "Accuracy", value: `${data.accuracy}%` },
           { title: "Streak", value: `${data.streak} days` },
-          { title: "Rank", value: `#${data.rank}` },
+          { title: "Rank", value: `#${data.rank ?? "-"}` },
         ].map((item, i) => (
           <div
             key={i}
@@ -91,16 +135,26 @@ export default function Dashboard() {
 
       {/* ACTIONS */}
       <div style={actions}>
-        {["Learn Hiragana", "Learn Katakana", "Practice"].map((text, i) => (
+        {[
+          { label: "Learn Hiragana", minutes: 15 },
+          { label: "Learn Katakana", minutes: 15 },
+          { label: "Practice", minutes: 30 },
+        ].map((item, i) => (
           <div
             key={i}
             ref={(el) => (actionsRef.current[i] = el)}
             style={{
               ...actionCard,
-              gridColumn: text === "Practice" ? "span 2" : "span 1",
+              gridColumn: item.label === "Practice" ? "span 2" : "span 1",
+              cursor: "pointer",
+            }}
+            onClick={async () => {
+              await addStudyTime(item.minutes);
+              await updateStreak();
+              await fetchDashboard();
             }}
           >
-            {text}
+            {item.label}
           </div>
         ))}
       </div>
@@ -124,7 +178,7 @@ export default function Dashboard() {
 
 const page = {
   minHeight: "100vh",
-  padding: "2.5rem",
+  padding: "clamp(1.2rem, 4vw, 2.5rem)",
   background: "linear-gradient(#fff6f9, #ffffff)",
 };
 
@@ -138,7 +192,7 @@ const welcomeCard = {
 
 const statsGrid = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
   gap: "1.2rem",
   marginBottom: "2.5rem",
 };
@@ -158,7 +212,7 @@ const statTitle = {
 
 const actions = {
   display: "grid",
-  gridTemplateColumns: "repeat(2, 1fr)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
   gap: "1.4rem",
   marginBottom: "2.5rem",
 };
@@ -183,6 +237,7 @@ const badgeRow = {
   display: "flex",
   gap: "0.8rem",
   marginTop: "1rem",
+  flexWrap: "wrap",
 };
 
 const badge = {
