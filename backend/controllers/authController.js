@@ -1,38 +1,41 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import generateToken from "../utils/generateToken.js";
 import { findUserByEmail, createUser } from "../models/User.js";
 
-/* REGISTER */
+/* =========================
+   REGISTER
+========================= */
 export const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    const finalUsername = username || name;
 
     if (!username || !email || !password) {
       return res.status(400).json({ message: "All fields required" });
     }
 
-    const existingUser = await findUserByEmail(email.trim());
-    if (existingUser) {
+    const existing = await findUserByEmail(email);
+    if (existing) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashed = await bcrypt.hash(password, 10);
 
-    const newUser = await createUser({
+    const user = await createUser({
       username,
-      email: email.trim(),
-      password: hashedPassword,
+      email,
+      password: hashed,
     });
 
+    const token = jwt.sign(
+      { id: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" } // ✅ 1 WEEK TOKEN
+    );
+
     res.status(201).json({
-      message: "User registered successfully",
-      token: generateToken(newUser.id),
-      user: {
-        id: newUser.id,
-        username: newUser.username,
-      },
+      message: "Registered successfully",
+      token,
+      user,
     });
   } catch (err) {
     console.error("REGISTER ERROR:", err);
@@ -40,31 +43,36 @@ export const register = async (req, res) => {
   }
 };
 
-/* LOGIN */
+/* =========================
+   LOGIN ✅ (THIS WAS MISSING)
+========================= */
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email & password required" });
-    }
-
-    const user = await findUserByEmail(email.trim());
+    const user = await findUserByEmail(email);
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      return res.status(400).json({ message: "Wrong password" });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    const token = jwt.sign(
+      { id: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" } // ✅ 1 WEEK TOKEN
+    );
+
     res.json({
-      message: "Login OK",
-      token: generateToken(user.id),
+      message: "Login successful",
+      token,
       user: {
         id: user.id,
         username: user.username,
+        email: user.email,
       },
     });
   } catch (err) {

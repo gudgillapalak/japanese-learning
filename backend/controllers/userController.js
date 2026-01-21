@@ -1,7 +1,8 @@
 import {
   getUserDashboardData,
   addStudyTime,
-  updateStreak,
+  updateDailyStreak,
+  saveQuizAccuracy,
 } from "../models/User.js";
 
 /* =========================
@@ -10,7 +11,6 @@ import {
 export const getDashboard = async (req, res) => {
   try {
     const userId = req.user.id;
-
     const data = await getUserDashboardData(userId);
 
     res.json({
@@ -36,8 +36,9 @@ export const addStudyTimeController = async (req, res) => {
     }
 
     await addStudyTime(userId, minutes);
+    await updateDailyStreak(userId); // 🔥 streak update here
 
-    res.json({ message: "Study time updated" });
+    res.json({ message: "Study time updated & streak checked" });
   } catch (err) {
     console.error("STUDY TIME ERROR:", err);
     res.status(500).json({ message: "Server error" });
@@ -45,17 +46,23 @@ export const addStudyTimeController = async (req, res) => {
 };
 
 /* =========================
-   UPDATE STREAK
+   SAVE QUIZ RESULT
 ========================= */
-export const updateStreakController = async (req, res) => {
+export const saveQuizAccuracyController = async (req, res) => {
   try {
     const userId = req.user.id;
+    const { accuracy } = req.body;
 
-    await updateStreak(userId);
+    if (accuracy === undefined) {
+      return res.status(400).json({ message: "Accuracy required" });
+    }
 
-    res.json({ message: "Streak updated" });
+    await saveQuizAccuracy(userId, accuracy);
+    await updateDailyStreak(userId); // 🔥 streak update here
+
+    res.json({ message: "Quiz saved & streak checked" });
   } catch (err) {
-    console.error("STREAK ERROR:", err);
+    console.error("QUIZ ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

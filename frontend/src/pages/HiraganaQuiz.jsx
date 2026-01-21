@@ -3,56 +3,39 @@ import { useNavigate } from "react-router-dom";
 
 /* ================= FULL HIRAGANA SET ================= */
 const HIRAGANA = [
-  { char: "あ", romaji: "a" },
-  { char: "い", romaji: "i" },
-  { char: "う", romaji: "u" },
-  { char: "え", romaji: "e" },
+  { char: "あ", romaji: "a" }, { char: "い", romaji: "i" },
+  { char: "う", romaji: "u" }, { char: "え", romaji: "e" },
   { char: "お", romaji: "o" },
 
-  { char: "か", romaji: "ka" },
-  { char: "き", romaji: "ki" },
-  { char: "く", romaji: "ku" },
-  { char: "け", romaji: "ke" },
+  { char: "か", romaji: "ka" }, { char: "き", romaji: "ki" },
+  { char: "く", romaji: "ku" }, { char: "け", romaji: "ke" },
   { char: "こ", romaji: "ko" },
 
-  { char: "さ", romaji: "sa" },
-  { char: "し", romaji: "shi" },
-  { char: "す", romaji: "su" },
-  { char: "せ", romaji: "se" },
+  { char: "さ", romaji: "sa" }, { char: "し", romaji: "shi" },
+  { char: "す", romaji: "su" }, { char: "せ", romaji: "se" },
   { char: "そ", romaji: "so" },
 
-  { char: "た", romaji: "ta" },
-  { char: "ち", romaji: "chi" },
-  { char: "つ", romaji: "tsu" },
-  { char: "て", romaji: "te" },
+  { char: "た", romaji: "ta" }, { char: "ち", romaji: "chi" },
+  { char: "つ", romaji: "tsu" }, { char: "て", romaji: "te" },
   { char: "と", romaji: "to" },
 
-  { char: "な", romaji: "na" },
-  { char: "に", romaji: "ni" },
-  { char: "ぬ", romaji: "nu" },
-  { char: "ね", romaji: "ne" },
+  { char: "な", romaji: "na" }, { char: "に", romaji: "ni" },
+  { char: "ぬ", romaji: "nu" }, { char: "ね", romaji: "ne" },
   { char: "の", romaji: "no" },
 
-  { char: "は", romaji: "ha" },
-  { char: "ひ", romaji: "hi" },
-  { char: "ふ", romaji: "fu" },
-  { char: "へ", romaji: "he" },
+  { char: "は", romaji: "ha" }, { char: "ひ", romaji: "hi" },
+  { char: "ふ", romaji: "fu" }, { char: "へ", romaji: "he" },
   { char: "ほ", romaji: "ho" },
 
-  { char: "ま", romaji: "ma" },
-  { char: "み", romaji: "mi" },
-  { char: "む", romaji: "mu" },
-  { char: "め", romaji: "me" },
+  { char: "ま", romaji: "ma" }, { char: "み", romaji: "mi" },
+  { char: "む", romaji: "mu" }, { char: "め", romaji: "me" },
   { char: "も", romaji: "mo" },
 
-  { char: "や", romaji: "ya" },
-  { char: "ゆ", romaji: "yu" },
+  { char: "や", romaji: "ya" }, { char: "ゆ", romaji: "yu" },
   { char: "よ", romaji: "yo" },
 
-  { char: "ら", romaji: "ra" },
-  { char: "り", romaji: "ri" },
-  { char: "る", romaji: "ru" },
-  { char: "れ", romaji: "re" },
+  { char: "ら", romaji: "ra" }, { char: "り", romaji: "ri" },
+  { char: "る", romaji: "ru" }, { char: "れ", romaji: "re" },
   { char: "ろ", romaji: "ro" },
 
   { char: "わ", romaji: "wa" },
@@ -60,7 +43,6 @@ const HIRAGANA = [
   { char: "ん", romaji: "n" },
 ];
 
-/* ================= UTILS ================= */
 const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
 
 export default function HiraganaQuiz() {
@@ -74,7 +56,6 @@ export default function HiraganaQuiz() {
 
   const TOTAL_QUESTIONS = 10;
 
-  /* ================= INIT QUIZ ================= */
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) navigate("/login");
@@ -101,14 +82,13 @@ export default function HiraganaQuiz() {
   if (!questions.length) return null;
 
   const total = questions.length;
-  const progress = Math.round((current / total) * 100);
   const accuracy = Math.round((score / total) * 100);
+  const progress = Math.round((current / total) * 100);
 
-  /* ================= HANDLE ANSWER ================= */
   const handleAnswer = (opt) => {
     if (selected) return;
-
     setSelected(opt);
+
     if (opt === questions[current].correct) {
       setScore((s) => s + 1);
     }
@@ -119,16 +99,21 @@ export default function HiraganaQuiz() {
         setSelected(null);
       } else {
         setFinished(true);
+
+        const token = localStorage.getItem("token");
+
+        fetch("http://localhost:5000/api/users/stats/quiz", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ accuracy }),
+        }).catch(() => {});
       }
     }, 700);
   };
 
-  /* ================= RETRY ================= */
-  const retry = () => {
-    navigate(0);
-  };
-
-  /* ================= FINISHED ================= */
   if (finished) {
     return (
       <div style={page}>
@@ -136,21 +121,14 @@ export default function HiraganaQuiz() {
         <p>Score: {score}/{total}</p>
         <p>Accuracy: {accuracy}%</p>
 
-        <button style={btn} onClick={retry}>
-          Retry Quiz
-        </button>
-
-        <button
-          style={{ ...btn, background: "#999" }}
-          onClick={() => navigate("/hiragana")}
-        >
-          Back to Hiragana
+        <button style={btn} onClick={() => navigate(0)}>Retry Quiz</button>
+        <button style={{ ...btn, background: "#999" }} onClick={() => navigate("/dashboard")}>
+          Go to Dashboard
         </button>
       </div>
     );
   }
 
-  /* ================= QUIZ UI ================= */
   return (
     <div style={page}>
       <h2>Hiragana Quiz 🌸</h2>
@@ -162,9 +140,7 @@ export default function HiraganaQuiz() {
       <p>Question {current + 1} / {total}</p>
 
       <div style={questionCard}>
-        <span style={{ fontSize: "3rem" }}>
-          {questions[current].char}
-        </span>
+        <span style={{ fontSize: "3rem" }}>{questions[current].char}</span>
       </div>
 
       <div style={options}>
@@ -210,7 +186,6 @@ const progressWrap = {
 const progressBar = {
   height: "100%",
   background: "#4ade80",
-  transition: "width 0.3s",
 };
 
 const questionCard = {
@@ -218,7 +193,6 @@ const questionCard = {
   padding: "2rem",
   borderRadius: "18px",
   marginBottom: "1.5rem",
-  boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
 };
 
 const options = {
@@ -232,7 +206,6 @@ const optionBtn = {
   borderRadius: "14px",
   border: "none",
   cursor: "pointer",
-  fontSize: "1rem",
 };
 
 const btn = {

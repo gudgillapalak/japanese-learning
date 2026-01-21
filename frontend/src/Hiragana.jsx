@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const HIRAGANA = [
+/* ================= BASIC HIRAGANA ================= */
+const BASIC = [
   { char: "あ", romaji: "a" },
   { char: "い", romaji: "i" },
   { char: "う", romaji: "u" },
@@ -44,23 +45,66 @@ const HIRAGANA = [
   { char: "め", romaji: "me" },
   { char: "も", romaji: "mo" },
 
+  { char: "や", romaji: "ya" },
+  { char: "ゆ", romaji: "yu" },
+  { char: "よ", romaji: "yo" },
+
+  { char: "ら", romaji: "ra" },
+  { char: "り", romaji: "ri" },
+  { char: "る", romaji: "ru" },
+  { char: "れ", romaji: "re" },
+  { char: "ろ", romaji: "ro" },
+
+  { char: "わ", romaji: "wa" },
+  { char: "を", romaji: "wo" },
   { char: "ん", romaji: "n" },
+];
+
+/* ================= DAKUTEN ================= */
+const DAKUTEN = [
+  { char: "が", romaji: "ga" },
+  { char: "ぎ", romaji: "gi" },
+  { char: "ぐ", romaji: "gu" },
+  { char: "げ", romaji: "ge" },
+  { char: "ご", romaji: "go" },
+
+  { char: "ざ", romaji: "za" },
+  { char: "じ", romaji: "ji" },
+  { char: "ず", romaji: "zu" },
+  { char: "ぜ", romaji: "ze" },
+  { char: "ぞ", romaji: "zo" },
+
+  { char: "だ", romaji: "da" },
+  { char: "ぢ", romaji: "ji" },
+  { char: "づ", romaji: "zu" },
+  { char: "で", romaji: "de" },
+  { char: "ど", romaji: "do" },
+
+  { char: "ば", romaji: "ba" },
+  { char: "び", romaji: "bi" },
+  { char: "ぶ", romaji: "bu" },
+  { char: "べ", romaji: "be" },
+  { char: "ぼ", romaji: "bo" },
+];
+
+/* ================= HANDAKUTEN ================= */
+const HANDAKUTEN = [
+  { char: "ぱ", romaji: "pa" },
+  { char: "ぴ", romaji: "pi" },
+  { char: "ぷ", romaji: "pu" },
+  { char: "ぺ", romaji: "pe" },
+  { char: "ぽ", romaji: "po" },
 ];
 
 export default function Hiragana() {
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
   const audioRef = useRef(null);
-
   const [selected, setSelected] = useState(null);
-  const [learned, setLearned] = useState(() => {
-    const saved = localStorage.getItem("hiragana_learned");
-    return saved ? JSON.parse(saved) : [];
-  });
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (!token) navigate("/login");
-  }, [navigate]);
+  }, [navigate, token]);
 
   const playSound = (item) => {
     const file = item.audio || `${item.romaji}.mp3`;
@@ -69,86 +113,86 @@ export default function Hiragana() {
     audioRef.current.play().catch(() => {});
   };
 
-  const handleSelect = (item) => {
-    setSelected(item);
-    playSound(item);
-
-    if (!learned.includes(item.char)) {
-      const updated = [...learned, item.char];
-      setLearned(updated);
-      localStorage.setItem("hiragana_learned", JSON.stringify(updated));
-    }
-  };
-
-  const total = HIRAGANA.length;
-  const completed = learned.length;
-  const percent = Math.round((completed / total) * 100);
-
-  // 🔓 LOWERED FOR TESTING
-  const quizUnlocked = percent >= 10;
+  const Card = ({ item }) => (
+    <div style={card} onClick={() => { setSelected(item); playSound(item); }}>
+      <span style={char}>{item.char}</span>
+      <span style={romaji}>{item.romaji}</span>
+    </div>
+  );
 
   return (
-    <div style={{ padding: "2rem" }}>
+    <div style={page}>
       <audio ref={audioRef} />
 
-      <h2>Hiragana 🌸</h2>
-
-      <p>
-        Progress: {completed}/{total} ({percent}%)
-      </p>
-
-      <button
-        disabled={!quizUnlocked}
-        onClick={() => navigate("/hiragana/quiz")}
-        style={{
-          padding: "0.8rem 1.5rem",
-          borderRadius: "16px",
-          border: "none",
-          background: quizUnlocked ? "#f39ab0" : "#ccc",
-          color: "#fff",
-          cursor: quizUnlocked ? "pointer" : "not-allowed",
-          marginBottom: "1.5rem",
-        }}
-      >
-        🧠 Practice Quiz
-      </button>
+      <h2 style={title}>Hiragana 🌸</h2>
 
       {selected && (
-        <div onClick={() => playSound(selected)}>
+        <div style={preview} onClick={() => playSound(selected)}>
           <h1>{selected.char}</h1>
-          <p>{selected.romaji}</p>
+          <p>{selected.romaji} · tap to hear 🔊</p>
         </div>
       )}
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(90px, 1fr))",
-          gap: "1rem",
-        }}
-      >
-        {HIRAGANA.map((item, i) => (
-          <div
-            key={i}
-            onClick={() => handleSelect(item)}
-            style={{
-              padding: "1rem",
-              borderRadius: "12px",
-              textAlign: "center",
-              background: learned.includes(item.char)
-                ? "#d7ffe6"
-                : "#fff",
-              boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-              cursor: "pointer",
-            }}
-          >
-            <div style={{ fontSize: "1.6rem" }}>{item.char}</div>
-            <div style={{ fontSize: "0.75rem", opacity: 0.6 }}>
-              {item.romaji}
-            </div>
-          </div>
-        ))}
-      </div>
+      <h3 style={section}>Basic Hiragana</h3>
+      <div style={grid}>{BASIC.map((i, idx) => <Card key={idx} item={i} />)}</div>
+
+      <h3 style={section}>Dakuten (が ざ だ ば)</h3>
+      <div style={grid}>{DAKUTEN.map((i, idx) => <Card key={idx} item={i} />)}</div>
+
+      <h3 style={section}>Handakuten (ぱ)</h3>
+      <div style={grid}>{HANDAKUTEN.map((i, idx) => <Card key={idx} item={i} />)}</div>
     </div>
   );
 }
+
+/* ================= STYLES ================= */
+
+const page = {
+  minHeight: "100vh",
+  padding: "2rem",
+  background: "linear-gradient(#fff6f9, #ffffff)",
+};
+
+const title = {
+  fontSize: "2rem",
+  marginBottom: "1rem",
+};
+
+const section = {
+  margin: "2rem 0 1rem",
+  fontWeight: 600,
+};
+
+const preview = {
+  background: "#fff",
+  padding: "1.5rem",
+  borderRadius: "16px",
+  textAlign: "center",
+  cursor: "pointer",
+  boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+};
+
+const grid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(90px, 1fr))",
+  gap: "1rem",
+};
+
+const card = {
+  background: "#fff",
+  padding: "1.2rem",
+  borderRadius: "14px",
+  textAlign: "center",
+  cursor: "pointer",
+  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+};
+
+const char = {
+  fontSize: "1.8rem",
+  display: "block",
+};
+
+const romaji = {
+  fontSize: "0.75rem",
+  opacity: 0.6,
+};
