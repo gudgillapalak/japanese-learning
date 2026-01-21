@@ -148,11 +148,7 @@ export default function Dashboard() {
               gridColumn: item.label === "Practice" ? "span 2" : "span 1",
               cursor: "pointer",
             }}
-            onClick={async () => {
-              await addStudyTime(item.minutes);
-              await updateStreak();
-              await fetchDashboard();
-            }}
+            onClick={() => navigate("/hiragana")}
           >
             {item.label}
           </div>
