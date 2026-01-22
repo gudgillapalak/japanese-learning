@@ -136,9 +136,9 @@ export default function Dashboard() {
       {/* ACTIONS */}
       <div style={actions}>
         {[
-          { label: "Learn Hiragana", minutes: 15 },
-          { label: "Learn Katakana", minutes: 15 },
-          { label: "Practice", minutes: 30 },
+          { label: "Learn Hiragana", minutes: 15, path:"/hiragana" },
+          { label: "Learn Katakana", minutes: 15, path:"/katakana" },
+          { label: "Practice", minutes: 30, path:"/hiragana/quiz" },
         ].map((item, i) => (
           <div
             key={i}
@@ -148,7 +148,7 @@ export default function Dashboard() {
               gridColumn: item.label === "Practice" ? "span 2" : "span 1",
               cursor: "pointer",
             }}
-            onClick={() => navigate("/hiragana")}
+            onClick={() => navigate(item.path)}
           >
             {item.label}
           </div>

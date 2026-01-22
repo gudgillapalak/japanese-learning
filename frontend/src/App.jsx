@@ -6,6 +6,7 @@ import "./index.css";
 import Dashboard from "./Dashboard";
 import Hiragana from "./Hiragana";
 import HiraganaQuiz from "./pages/HiraganaQuiz.jsx";
+import Katakana from "./Katakana.jsx";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/hiragana" element={<Hiragana />} />
         <Route path="/hiragana/quiz" element={<HiraganaQuiz />} />
+        <Route path="/katakana" element={<Katakana />} />
       </Routes>
     </>
   );
