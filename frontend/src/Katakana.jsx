@@ -102,9 +102,20 @@ export default function Katakana() {
   const audioRef = useRef(null);
   const [selected, setSelected] = useState(null);
 
+  /* 🌓 Dark mode */
+  const [dark, setDark] = useState(
+    localStorage.getItem("theme") === "dark"
+  );
+
   useEffect(() => {
     if (!token) navigate("/login");
   }, [navigate, token]);
+
+  const toggleTheme = () => {
+    const next = !dark;
+    setDark(next);
+    localStorage.setItem("theme", next ? "dark" : "light");
+  };
 
   const playSound = (item) => {
     const file = `${item.romaji}.mp3`;
@@ -115,25 +126,35 @@ export default function Katakana() {
 
   const Card = ({ item }) => (
     <div
-      style={card}
+      style={dark ? darkCard : card}
       onClick={() => {
         setSelected(item);
         playSound(item);
       }}
     >
-      <span style={char}>{item.char}</span>
-      <span style={romaji}>{item.romaji}</span>
+      <span style={dark ? darkChar : char}>{item.char}</span>
+      <span style={dark ? darkRomaji : romaji}>{item.romaji}</span>
     </div>
   );
 
   return (
-    <div style={page}>
+    <div style={dark ? darkPage : page}>
       <audio ref={audioRef} />
 
-      <h2 style={title}>Katakana 🌸</h2>
+      {/* Theme Toggle */}
+      <div style={toggleWrap}>
+        <button style={toggleBtn(dark)} onClick={toggleTheme}>
+          {dark ? "☀️ Light" : "🌙 Dark"}
+        </button>
+      </div>
+
+      <h2 style={dark ? darkTitle : title}>Katakana 🌸</h2>
 
       {selected && (
-        <div style={preview} onClick={() => playSound(selected)}>
+        <div
+          style={dark ? darkPreview : preview}
+          onClick={() => playSound(selected)}
+        >
           <h1>{selected.char}</h1>
           <p>{selected.romaji} · tap to hear 🔊</p>
         </div>
@@ -159,9 +180,22 @@ const page = {
   background: "linear-gradient(#fff6f9, #ffffff)",
 };
 
+const darkPage = {
+  minHeight: "100vh",
+  padding: "2rem",
+  background: "linear-gradient(180deg, #0f172a, #020617)",
+  color: "#e5e7eb",
+};
+
 const title = {
   fontSize: "2rem",
   marginBottom: "1rem",
+};
+
+const darkTitle = {
+  fontSize: "2rem",
+  marginBottom: "1rem",
+  textShadow: "0 4px 18px rgba(255,183,197,0.4)",
 };
 
 const section = {
@@ -176,6 +210,15 @@ const preview = {
   textAlign: "center",
   cursor: "pointer",
   boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+};
+
+const darkPreview = {
+  background: "rgba(15,23,42,0.85)",
+  padding: "1.5rem",
+  borderRadius: "16px",
+  textAlign: "center",
+  cursor: "pointer",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.7)",
 };
 
 const grid = {
@@ -193,12 +236,48 @@ const card = {
   boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
 };
 
+const darkCard = {
+  background: "rgba(15,23,42,0.9)",
+  padding: "1.2rem",
+  borderRadius: "14px",
+  textAlign: "center",
+  cursor: "pointer",
+  boxShadow: "0 10px 25px rgba(0,0,0,0.6)",
+  border: "1px solid rgba(255,255,255,0.08)",
+};
+
 const char = {
   fontSize: "1.8rem",
   display: "block",
+};
+
+const darkChar = {
+  fontSize: "1.8rem",
+  display: "block",
+  color: "#f8fafc",
 };
 
 const romaji = {
   fontSize: "0.75rem",
   opacity: 0.6,
 };
+
+const darkRomaji = {
+  fontSize: "0.75rem",
+  opacity: 0.7,
+};
+
+const toggleWrap = {
+  position: "absolute",
+  top: "1.5rem",
+  right: "1.5rem",
+};
+
+const toggleBtn = (dark) => ({
+  padding: "0.5rem 1rem",
+  borderRadius: "999px",
+  border: "1px solid rgba(255,255,255,0.2)",
+  background: dark ? "#020617" : "#fff",
+  color: dark ? "#fff" : "#111",
+  cursor: "pointer",
+});

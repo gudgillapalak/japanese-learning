@@ -274,3 +274,53 @@ body::before {
   transform: rotate(10deg) translateY(-3px);
   transition: all 0.4s ease;
 }
+
+/* ================= AVATAR PICKER ================= */
+
+.avatar-picker {
+  margin: 1.2rem 0 0.6rem;
+  text-align: center;
+}
+
+.avatar-label {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-bottom: 0.6rem;
+}
+
+.avatar-row {
+  display: flex;
+  justify-content: center;
+  gap: 1.4rem;
+}
+
+.avatar-option {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+}
+
+.avatar-option:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 28px rgba(246,177,195,0.45);
+}
+
+.avatar-option.selected {
+  border-color: #f3a4ba;
+  box-shadow:
+    0 0 0 4px rgba(246,177,195,0.25),
+    0 14px 32px rgba(246,177,195,0.55);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -2,6 +2,9 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 
+import maleAvatar from "../public/avatar-male.png";
+import femaleAvatar from "../public/avatar-female.png";
+
 export default function AuthBook() {
   const cardRef = useRef(null);
   const navigate = useNavigate();
@@ -11,6 +14,7 @@ export default function AuthBook() {
   const [username, setUsername] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
+  const [avatar, setAvatar] = useState(""); // ✅ AVATAR PICK
 
   /* ================= LOGIN STATE ================= */
   const [loginEmail, setLoginEmail] = useState("");
@@ -44,8 +48,8 @@ export default function AuthBook() {
   /* ================= REGISTER ================= */
 
   const registerUser = async () => {
-    if (!username || !regEmail || !regPassword) {
-      setMsg("⚠️ Please fill all fields");
+    if (!username || !regEmail || !regPassword || !avatar) {
+      setMsg("⚠️ Please fill all fields and choose an avatar");
       return;
     }
 
@@ -60,6 +64,7 @@ export default function AuthBook() {
           username,
           email: regEmail,
           password: regPassword,
+          avatar, // ✅ SAVE AVATAR TYPE
         }),
       });
 
@@ -107,11 +112,9 @@ export default function AuthBook() {
 
       setMsg("✅ Login successful");
 
-      // save user in localStorage
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("token", data.token);
 
-      // redirect to dashboard
       setTimeout(() => {
         navigate("/dashboard");
       }, 700);
@@ -128,7 +131,6 @@ export default function AuthBook() {
     <div className="auth-scene">
       <div className="flip-container">
         <div ref={cardRef} className="flip-card">
-          {/* 🎓 HAT */}
           <img src="/hat.png" className="auth-hat" alt="hat" />
 
           {/* ================= REGISTER ================= */}
@@ -153,6 +155,31 @@ export default function AuthBook() {
               value={regPassword}
               onChange={(e) => setRegPassword(e.target.value)}
             />
+
+            {/* ✅ AVATAR PICKER */}
+            <div className="avatar-picker">
+              <p className="avatar-label">Choose Avatar</p>
+
+              <div className="avatar-row">
+                <img
+                  src={maleAvatar}
+                  alt="Male avatar"
+                  className={`avatar-option ${
+                    avatar === "male" ? "selected" : ""
+                  }`}
+                  onClick={() => setAvatar("male")}
+                />
+
+                <img
+                  src={femaleAvatar}
+                  alt="Female avatar"
+                  className={`avatar-option ${
+                    avatar === "female" ? "selected" : ""
+                  }`}
+                  onClick={() => setAvatar("female")}
+                />
+              </div>
+            </div>
 
             <button
               className="auth-btn"
@@ -203,3 +230,5 @@ export default function AuthBook() {
     </div>
   );
 }
+
+

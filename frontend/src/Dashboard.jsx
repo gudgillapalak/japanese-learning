@@ -8,46 +8,49 @@ import femaleAvatar from "../public/avatar-female.png";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const storedUser = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
 
   const [data, setData] = useState(null);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [dark, setDark] = useState(localStorage.getItem("theme") === "dark");
 
+  const bgRef = useRef(null);
   const streakRef = useRef(null);
+  const accuracyRef = useRef(null);
+  const studyRef = useRef(null);
 
   /* ================= AUTH ================= */
   useEffect(() => {
-    if (!storedUser || !token) navigate("/login");
-  }, [navigate, storedUser, token]);
+    if (!token) navigate("/login");
+  }, [navigate, token]);
 
   /* ================= FETCH ================= */
   useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/users/dashboard", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+    fetch("http://localhost:5000/api/users/dashboard", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((j) => setData(j.data))
+      .catch(() => navigate("/login"));
+  }, [navigate, token]);
 
-        if (res.status === 401) {
-          localStorage.clear();
-          navigate("/login");
-          return;
-        }
-
-        const json = await res.json();
-        setData(json.data);
-      } catch {
-        navigate("/login");
-      }
+  /* ================= PARALLAX ================= */
+  useEffect(() => {
+    const move = (e) => {
+      if (!bgRef.current) return;
+      gsap.to(bgRef.current, {
+        x: (e.clientX / window.innerWidth - 0.5) * 10,
+        y: (e.clientY / window.innerHeight - 0.5) * 10,
+        duration: 0.6,
+        ease: "power2.out",
+      });
     };
-
-    fetchDashboard();
+    window.addEventListener("mousemove", move);
+    return () => window.removeEventListener("mousemove", move);
   }, []);
 
-  /* ================= STREAK ANIMATION ================= */
+  /* ================= ANIMATIONS ================= */
   useEffect(() => {
-    if (!data || !streakRef.current) return;
+    if (!data) return;
 
     gsap.to(streakRef.current, {
       scale: 1.08,
@@ -55,71 +58,75 @@ export default function Dashboard() {
       yoyo: true,
       duration: 0.8,
     });
+
+    gsap.fromTo(
+      accuracyRef.current,
+      { width: "0%" },
+      { width: `${data.accuracy || 0}%`, duration: 1.4 }
+    );
+
+    gsap.fromTo(
+      studyRef.current,
+      { width: "0%" },
+      {
+        width: `${Math.min((data.study_time_minutes || 0) / 6, 100)}%`,
+        duration: 1.4,
+        delay: 0.2,
+      }
+    );
   }, [data]);
 
   if (!data) return null;
 
-  const avatar =
-    data.gender === "male" ? maleAvatar : femaleAvatar;
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const avatar = storedUser?.avatar === "male" ? maleAvatar : femaleAvatar;
 
+  const toggleTheme = () => {
+    const n = !dark;
+    setDark(n);
+    localStorage.setItem("theme", n ? "dark" : "light");
+  };
+
+  /* ================= BADGES ================= */
   const badges = [
-    { icon: "🌸", unlock: data.streak >= 1 },
-    { icon: "🔥", unlock: data.streak >= 3 },
-    { icon: "⭐", unlock: data.streak >= 7 },
-    { icon: "🔒", unlock: false },
+    { icon: "🌸", label: "First Step", unlock: data.streak >= 1 },
+    { icon: "🔥", label: "On Fire", unlock: data.streak >= 3 },
+    { icon: "⭐", label: "Consistent", unlock: data.streak >= 7 },
+    { icon: "🎯", label: "Accurate", unlock: data.accuracy >= 80 },
+    { icon: "🏆", label: "Master", unlock: data.accuracy >= 95 && data.streak >= 14 },
   ];
 
   return (
     <div style={page}>
-      <div style={overlay} />
+      <div
+        ref={bgRef}
+        style={{ ...bg, backgroundImage: `url(${dashboardBg})` }}
+      />
+      <div style={dark ? darkOverlay : lightOverlay} />
 
       {/* NAVBAR */}
-      <nav style={navbar}>
-        <div style={navLeft}>🌸 SakuraLearn</div>
-
-        <div className="nav-links" style={navCenter}>
+      <nav style={dark ? darkNavbar : navbar}>
+        <div style={{ fontWeight: 700 }}>🌸 SakuraLearn</div>
+        <div style={navCenter}>
           <span onClick={() => navigate("/hiragana")}>Hiragana</span>
           <span onClick={() => navigate("/katakana")}>Katakana</span>
           <span onClick={() => navigate("/hiragana/quiz")}>Practice</span>
         </div>
-
-        <div
-          className="hamburger"
-          style={hamburger}
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          ☰
-        </div>
+        <button style={toggleBtn(dark)} onClick={toggleTheme}>
+          {dark ? "☀️ Light" : "🌙 Dark"}
+        </button>
       </nav>
-
-      {menuOpen && (
-        <div style={mobileMenu}>
-          <span onClick={() => navigate("/hiragana")}>Hiragana</span>
-          <span onClick={() => navigate("/katakana")}>Katakana</span>
-          <span onClick={() => navigate("/hiragana/quiz")}>Practice</span>
-          <span
-            onClick={() => {
-              localStorage.clear();
-              navigate("/login");
-            }}
-          >
-            Logout
-          </span>
-        </div>
-      )}
 
       {/* MAIN */}
       <div style={layout}>
-        <div style={glassColumn}>
+        <div style={column}>
           {/* WELCOME */}
-          <div className="welcome-card" style={welcomeCard}>
+          <div style={dark ? darkCard : card}>
             <img src={avatar} alt="avatar" style={avatarStyle} />
             <div>
-              <h1 style={welcomeTitle}>
-                Welcome back, {data.username} 🌸
-              </h1>
-              <div style={welcomeMeta}>
-                <span style={levelChip}>Beginner</span>
+              <h2>Welcome back, {data.username} 🌸</h2>
+              <div style={chips}>
+                <span style={chip}>Beginner</span>
                 <span ref={streakRef} style={streakChip}>
                   🔥 {data.streak} days
                 </span>
@@ -127,31 +134,45 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* STATS */}
-          <div className="stats-grid" style={statsGrid}>
-            {[
-              ["Study Time", `${Math.floor(data.study_time_minutes / 60)} hrs`],
-              ["Accuracy", `${data.accuracy}%`],
-              ["Streak", `${data.streak} days`],
-              ["Rank", `#${data.rank ?? 0}`],
-            ].map(([title, value], i) => (
-              <div key={i} className="stat-card" style={statCard}>
-                <p style={statTitle}>{title}</p>
-                <h3>{value}</h3>
-              </div>
-            ))}
+          {/* PROGRESS */}
+          <div style={dark ? darkCard : card}>
+            <h3>📊 Progress</h3>
+
+            <p>Accuracy</p>
+            <div style={barBg}>
+              <div ref={accuracyRef} style={accuracyBar} />
+            </div>
+
+            <p style={{ marginTop: "1rem" }}>Study Time</p>
+            <div style={barBg}>
+              <div ref={studyRef} style={studyBar} />
+            </div>
+          </div>
+
+          {/* ACTIONS */}
+          <div style={actionGrid}>
+            <button style={actionBtn} onClick={() => navigate("/hiragana/quiz")}>
+              ▶ Continue Practice
+            </button>
+            <button style={actionBtn} onClick={() => navigate("/katakana")}>
+              🈶 Learn Katakana
+            </button>
+            <button style={{ ...actionBtn, opacity: 0.7 }}>
+              🧠 Weak Kana (Soon)
+            </button>
           </div>
 
           {/* BADGES */}
-          <div style={badgeCard}>
-            <h3>Badges</h3>
+          <div style={dark ? darkCard : card}>
+            <h3>🏆 Badges</h3>
             <div style={badgeRow}>
               {badges.map((b, i) => (
                 <div
                   key={i}
+                  title={b.label}
                   style={{
                     ...badge,
-                    opacity: b.unlock ? 1 : 0.35,
+                    opacity: b.unlock ? 1 : 0.25,
                     filter: b.unlock ? "none" : "grayscale(1)",
                   }}
                 >
@@ -161,180 +182,149 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-
-        <div />
       </div>
-
-      {/* MOBILE FIXES */}
-      <style>{`
-        @media (max-width: 768px) {
-          .nav-links {
-            display: none;
-          }
-
-          .hamburger {
-            display: block !important;
-          }
-
-          .welcome-card {
-            padding: 1.4rem !important;
-            gap: 1rem !important;
-          }
-
-          .welcome-card img {
-            width: 72px !important;
-            height: 72px !important;
-          }
-
-          .stats-grid {
-            grid-template-columns: 1fr !important;
-          }
-
-          .stat-card {
-            padding: 1rem !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }
 
 /* ================= STYLES ================= */
 
-const page = {
-  minHeight: "100vh",
-  backgroundImage: `url(${dashboardBg})`,
-  backgroundSize: "cover",
-  backgroundPosition: "center",
-  position: "relative",
-};
+const page = { minHeight: "100vh", position: "relative", overflow: "hidden" };
 
-const overlay = {
+const bg = {
   position: "absolute",
   inset: 0,
-  background:
-    "linear-gradient(rgba(255,255,255,0.25), rgba(255,255,255,0.4))",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  zIndex: 0,
+};
+
+const lightOverlay = {
+  position: "absolute",
+  inset: 0,
+  background: "rgba(255,255,255,0.35)",
+  zIndex: 1,
+};
+
+const darkOverlay = {
+  position: "absolute",
+  inset: 0,
+  background: "rgba(2,6,23,0.65)",
+  zIndex: 1,
 };
 
 const navbar = {
-  position: "sticky",
-  top: 0,
-  zIndex: 10,
   height: "64px",
+  padding: "0 1.5rem",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "0 1.5rem",
-  background: "rgba(255,180,200,0.65)",
+  background: "rgba(255,180,200,0.7)",
   backdropFilter: "blur(16px)",
+  position: "relative",
+  zIndex: 3,
 };
 
-const navLeft = { fontWeight: 700 };
-const navCenter = { display: "flex", gap: "1.5rem" };
+const darkNavbar = {
+  ...navbar,
+  background: "rgba(15,23,42,0.9)",
+  color: "#e5e7eb",
+};
 
-const hamburger = {
-  fontSize: "1.6rem",
+const navCenter = { display: "flex", gap: "1.4rem", cursor: "pointer" };
+
+const toggleBtn = (dark) => ({
+  padding: "0.4rem 1rem",
+  borderRadius: "999px",
+  border: dark ? "1px solid #fff" : "1px solid #000",
+  background: dark ? "#020617" : "#fff",
+  color: dark ? "#fff" : "#000",
   cursor: "pointer",
-  display: "none",
-};
-
-const mobileMenu = {
-  position: "absolute",
-  top: "64px",
-  right: "1rem",
-  background: "rgba(255,255,255,0.95)",
-  borderRadius: "14px",
-  padding: "1rem",
-  display: "flex",
-  flexDirection: "column",
-  gap: "0.8rem",
-  zIndex: 20,
-};
+});
 
 const layout = {
   position: "relative",
-  zIndex: 1,
+  zIndex: 2,
+  padding: "2rem",
   display: "grid",
   gridTemplateColumns: "minmax(360px, 42%) 1fr",
+};
+
+const column = { display: "flex", flexDirection: "column", gap: "1.6rem" };
+
+const card = {
+  background: "rgba(255,255,255,0.8)",
+  borderRadius: "24px",
   padding: "2rem",
-};
-
-const glassColumn = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "1.6rem",
-};
-
-const welcomeCard = {
-  display: "flex",
-  gap: "1.8rem",
-  padding: "3rem",
-  borderRadius: "26px",
-  background: "rgba(255,255,255,0.78)",
   backdropFilter: "blur(18px)",
 };
 
+const darkCard = {
+  ...card,
+  background: "rgba(15,23,42,0.85)",
+  color: "#e5e7eb",
+};
+
 const avatarStyle = {
-  width: "120px",
-  height: "120px",
+  width: "90px",
+  height: "90px",
   borderRadius: "50%",
 };
 
-const welcomeTitle = {
-  fontSize: "1.4rem",
-  marginBottom: "0.6rem",
-};
+const chips = { display: "flex", gap: "0.6rem", marginTop: "0.6rem" };
 
-const welcomeMeta = {
-  display: "flex",
-  gap: "0.6rem",
-  flexWrap: "wrap",
-};
-
-const levelChip = {
-  padding: "0.4rem 0.9rem",
-  borderRadius: "16px",
-  background: "rgba(255,180,200,0.85)",
+const chip = {
+  padding: "0.35rem 0.8rem",
+  borderRadius: "14px",
+  background: "rgba(255,180,200,0.8)",
 };
 
 const streakChip = {
-  padding: "0.4rem 0.9rem",
-  borderRadius: "16px",
-  background: "linear-gradient(135deg, #ff9a3c, #ff5f3c)",
+  padding: "0.35rem 0.8rem",
+  borderRadius: "14px",
+  background: "linear-gradient(135deg,#ff9a3c,#ff5f3c)",
   color: "#fff",
 };
 
-const statsGrid = {
+const barBg = {
+  height: "10px",
+  background: "rgba(0,0,0,0.15)",
+  borderRadius: "999px",
+};
+
+const accuracyBar = {
+  height: "100%",
+  background: "linear-gradient(90deg,#22c55e,#4ade80)",
+  borderRadius: "999px",
+};
+
+const studyBar = {
+  height: "100%",
+  background: "linear-gradient(90deg,#ec4899,#f472b6)",
+  borderRadius: "999px",
+};
+
+const actionGrid = {
   display: "grid",
-  gridTemplateColumns: "repeat(2, 1fr)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(180px,1fr))",
   gap: "1rem",
 };
 
-const statCard = {
-  padding: "1.4rem",
-  borderRadius: "18px",
-  background: "rgba(255,255,255,0.75)",
-  backdropFilter: "blur(14px)",
-  textAlign: "center",
+const actionBtn = {
+  padding: "1rem",
+  borderRadius: "16px",
+  border: "none",
+  cursor: "pointer",
+  background: "linear-gradient(135deg,#ec4899,#f472b6)",
+  color: "#fff",
+  fontWeight: 600,
 };
 
-const statTitle = { opacity: 0.6 };
-
-const badgeCard = {
-  padding: "1.4rem",
-  borderRadius: "20px",
-  background: "rgba(255,255,255,0.75)",
-  backdropFilter: "blur(14px)",
-};
-
-const badgeRow = {
-  display: "flex",
-  gap: "0.7rem",
-};
+const badgeRow = { display: "flex", gap: "0.7rem" };
 
 const badge = {
-  width: "42px",
-  height: "42px",
+  width: "44px",
+  height: "44px",
   borderRadius: "50%",
   background: "rgba(255,220,230,0.9)",
   display: "flex",
