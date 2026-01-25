@@ -96,6 +96,54 @@ const HANDAKUTEN = [
   { char: "ぽ", romaji: "po" },
 ];
 
+const YOON = [
+  { char: "きゃ", romaji: "kya" },
+  { char: "きゅ", romaji: "kyu" },
+  { char: "きょ", romaji: "kyo" },
+
+  { char: "しゃ", romaji: "sha" },
+  { char: "しゅ", romaji: "shu" },
+  { char: "しょ", romaji: "sho" },
+
+  { char: "ちゃ", romaji: "cha" },
+  { char: "ちゅ", romaji: "chu" },
+  { char: "ちょ", romaji: "cho" },
+
+  { char: "にゃ", romaji: "nya" },
+  { char: "にゅ", romaji: "nyu" },
+  { char: "にょ", romaji: "nyo" },
+
+  { char: "ひゃ", romaji: "hya" },
+  { char: "ひゅ", romaji: "hyu" },
+  { char: "ひょ", romaji: "hyo" },
+
+  { char: "みゃ", romaji: "mya" },
+  { char: "みゅ", romaji: "myu" },
+  { char: "みょ", romaji: "myo" },
+
+  { char: "りゃ", romaji: "rya" },
+  { char: "りゅ", romaji: "ryu" },
+  { char: "りょ", romaji: "ryo" },
+
+  { char: "ぎゃ", romaji: "gya" },
+  { char: "ぎゅ", romaji: "gyu" },
+  { char: "ぎょ", romaji: "gyo" },
+
+  { char: "じゃ", romaji: "ja" },
+  { char: "じゅ", romaji: "ju" },
+  { char: "じょ", romaji: "jo" },
+
+  { char: "びゃ", romaji: "bya" },
+  { char: "びゅ", romaji: "byu" },
+  { char: "びょ", romaji: "byo" },
+
+  { char: "ぴゃ", romaji: "pya" },
+  { char: "ぴゅ", romaji: "pyu" },
+  { char: "ぴょ", romaji: "pyo" }
+];
+
+
+
 export default function Hiragana() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -168,6 +216,9 @@ export default function Hiragana() {
 
       <h3 style={section}>Handakuten (ぱ)</h3>
       <div style={grid}>{HANDAKUTEN.map((i, idx) => <Card key={idx} item={i} />)}</div>
+
+       <h3 style={section}>Yoon (ようおん)</h3>
+      <div style={grid}>{YOON.map((i, idx) => <Card key={idx} item={i} />)}</div>
     </div>
   );
 }
