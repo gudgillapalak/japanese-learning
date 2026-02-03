@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 
-import dashboardBg from "../public/dashboard-bg.png";
-import maleAvatar from "../public/avatar-male.png";
-import femaleAvatar from "../public/avatar-female.png";
+import dashboardBg from "./assets/dashboard-bg.png";
+import maleAvatar from "./assets/avatar-male.png";
+import femaleAvatar from "./assets/avatar-female.png";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -79,7 +79,8 @@ export default function Dashboard() {
   if (!data) return null;
 
   const storedUser = JSON.parse(localStorage.getItem("user"));
-  const avatar = storedUser?.avatar === "male" ? maleAvatar : femaleAvatar;
+  const avatar =
+    storedUser?.avatar === "male" ? maleAvatar : femaleAvatar;
 
   const toggleTheme = () => {
     const n = !dark;
@@ -93,11 +94,16 @@ export default function Dashboard() {
     { icon: "🔥", label: "On Fire", unlock: data.streak >= 3 },
     { icon: "⭐", label: "Consistent", unlock: data.streak >= 7 },
     { icon: "🎯", label: "Accurate", unlock: data.accuracy >= 80 },
-    { icon: "🏆", label: "Master", unlock: data.accuracy >= 95 && data.streak >= 14 },
+    {
+      icon: "🏆",
+      label: "Master",
+      unlock: data.accuracy >= 95 && data.streak >= 14,
+    },
   ];
 
   return (
     <div style={page}>
+      {/* BACKGROUND */}
       <div
         ref={bgRef}
         style={{ ...bg, backgroundImage: `url(${dashboardBg})` }}
@@ -151,10 +157,16 @@ export default function Dashboard() {
 
           {/* ACTIONS */}
           <div style={actionGrid}>
-            <button style={actionBtn} onClick={() => navigate("/hiragana/quiz")}>
+            <button
+              style={actionBtn}
+              onClick={() => navigate("/hiragana/quiz")}
+            >
               ▶ Continue Practice
             </button>
-            <button style={actionBtn} onClick={() => navigate("/katakana")}>
+            <button
+              style={actionBtn}
+              onClick={() => navigate("/katakana")}
+            >
               🈶 Learn Katakana
             </button>
             <button style={{ ...actionBtn, opacity: 0.7 }}>
@@ -189,7 +201,11 @@ export default function Dashboard() {
 
 /* ================= STYLES ================= */
 
-const page = { minHeight: "100vh", position: "relative", overflow: "hidden" };
+const page = {
+  minHeight: "100vh",
+  position: "relative",
+  overflow: "hidden",
+};
 
 const bg = {
   position: "absolute",
@@ -231,7 +247,11 @@ const darkNavbar = {
   color: "#e5e7eb",
 };
 
-const navCenter = { display: "flex", gap: "1.4rem", cursor: "pointer" };
+const navCenter = {
+  display: "flex",
+  gap: "1.4rem",
+  cursor: "pointer",
+};
 
 const toggleBtn = (dark) => ({
   padding: "0.4rem 1rem",
@@ -250,7 +270,11 @@ const layout = {
   gridTemplateColumns: "minmax(360px, 42%) 1fr",
 };
 
-const column = { display: "flex", flexDirection: "column", gap: "1.6rem" };
+const column = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "1.6rem",
+};
 
 const card = {
   background: "rgba(255,255,255,0.8)",
@@ -271,7 +295,11 @@ const avatarStyle = {
   borderRadius: "50%",
 };
 
-const chips = { display: "flex", gap: "0.6rem", marginTop: "0.6rem" };
+const chips = {
+  display: "flex",
+  gap: "0.6rem",
+  marginTop: "0.6rem",
+};
 
 const chip = {
   padding: "0.35rem 0.8rem",
@@ -320,7 +348,10 @@ const actionBtn = {
   fontWeight: 600,
 };
 
-const badgeRow = { display: "flex", gap: "0.7rem" };
+const badgeRow = {
+  display: "flex",
+  gap: "0.7rem",
+};
 
 const badge = {
   width: "44px",
